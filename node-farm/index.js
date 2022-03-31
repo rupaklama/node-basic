@@ -10,6 +10,7 @@ const http = require("http");
 
 // routings
 const url = require("url");
+// console.log("URL", url);
 
 // NOTE - This Top Level code, code outside of function only gets executed
 // once right in the beginning where as the http function below gets call always whenever there is a request.
@@ -52,13 +53,16 @@ const dataObj = JSON.parse(data);
 /* Server */
 // to create http server instance
 const server = http.createServer((req, res) => {
-  console.log(req.url);
+  // request url - /product?id=0
+  // console.log(req.url);
 
-  // simple routing
-  const pathName = req.url;
+  // url.parse() method takes a URL string, parses it, and returns a URL object with properties
+  // console.log(url.parse(req.url, true));
+  // destructuring object properties that we need
+  const { query, pathname } = url.parse(req.url, true);
 
   /* overview page */
-  if (pathName === "/" || pathName === "/overview") {
+  if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, {
       "Content-type": "text/html",
     });
@@ -70,11 +74,14 @@ const server = http.createServer((req, res) => {
     res.end(output);
 
     /* product page */
-  } else if (pathName === "/product") {
-    res.end("This is the Product");
+  } else if (pathname === "/product") {
+    const product = dataObj[query.id];
+    const output = replaceTemplate(templateProduct, product);
+
+    res.end(output);
 
     /* api page */
-  } else if (pathName === "/api") {
+  } else if (pathname === "/api") {
     // '.' is root directory where the script is running
     // __dirname is the directory where the current file is located
 
