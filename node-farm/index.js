@@ -12,6 +12,9 @@ const http = require("http");
 const url = require("url");
 // console.log("URL", url);
 
+// our module
+const replaceTemplate = require("./modules/replaceTemplate");
+
 // NOTE - This Top Level code, code outside of function only gets executed
 // once right in the beginning where as the http function below gets call always whenever there is a request.
 
@@ -28,23 +31,6 @@ const templateCard = fs.readFileSync(`${__dirname}/templates/template-card.html`
 const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, "utf-8");
 
 /* helper function to render html */
-const replaceTemplate = (temp, product) => {
-  // created variable as it is not a good practice to manipulate Arg directly
-  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
-
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = output.replace(/{%ID%}/g, product.id);
-
-  if (!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-
-  // final html
-  return output;
-};
 
 // parsing json data to js object
 // array of products
