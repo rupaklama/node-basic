@@ -1,19 +1,23 @@
-"use strict";
+'use strict';
 
 // importing objects with CommonJS module syntax
 
+/* 1. default node Core modules */
 // file system
-const fs = require("fs");
+const fs = require('fs');
 
 // http server instance
-const http = require("http");
+const http = require('http');
 
 // routings
-const url = require("url");
+const url = require('url');
 // console.log("URL", url);
 
-// our module
-const replaceTemplate = require("./modules/replaceTemplate");
+/* 2. third party modules */
+const slugify = require('slugify');
+
+/* 3. our own modules */
+const replaceTemplate = require('./modules/replaceTemplate');
 
 // NOTE - This Top Level code, code outside of function only gets executed
 // once right in the beginning where as the http function below gets call always whenever there is a request.
@@ -23,18 +27,22 @@ const replaceTemplate = require("./modules/replaceTemplate");
 
 // note - Synchronous execution because this code will get executed once and also to not to read file whenever
 // there is a request therefore saving it in a variable.
-const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 
 // variables holds Strings from html
-const templateOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, "utf-8");
-const templateCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, "utf-8");
-const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, "utf-8");
+const templateOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
+const templateCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
+const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
 
 /* helper function to render html */
 
 // parsing json data to js object
 // array of products
 const dataObj = JSON.parse(data);
+
+// slugs
+const slugs = dataObj.map((el) => slugify(el.productName, { lower: true }));
+// console.log(slugs);
 
 /* Server */
 // to create http server instance
@@ -48,32 +56,32 @@ const server = http.createServer((req, res) => {
   const { query, pathname } = url.parse(req.url, true);
 
   /* overview page */
-  if (pathname === "/" || pathname === "/overview") {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {
-      "Content-type": "text/html",
+      'Content-type': 'text/html',
     });
 
     // products array
-    const cardsHtml = dataObj.map(prod => replaceTemplate(templateCard, prod)).join("");
-    const output = templateOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
+    const cardsHtml = dataObj.map((prod) => replaceTemplate(templateCard, prod)).join('');
+    const output = templateOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
 
     res.end(output);
 
     /* product page */
-  } else if (pathname === "/product") {
+  } else if (pathname === '/product') {
     const product = dataObj[query.id];
     const output = replaceTemplate(templateProduct, product);
 
     res.end(output);
 
     /* api page */
-  } else if (pathname === "/api") {
+  } else if (pathname === '/api') {
     // '.' is root directory where the script is running
     // __dirname is the directory where the current file is located
 
     // Sends a response header to the request with our json data
     res.writeHead(200, {
-      "Content-type": "application/json",
+      'Content-type': 'application/json',
     });
     res.end(data);
 
@@ -84,20 +92,20 @@ const server = http.createServer((req, res) => {
     res.writeHead(404, {
       // standard header to inform the browser the Content type
       // now the browser is expecting some html
-      "Content-type": "text/html", // sending html content type
+      'Content-type': 'text/html', // sending html content type
 
       // custom header
-      "my-own-header": "hello-world",
+      'my-own-header': 'hello-world',
     });
 
     // note - this needs to come/after after we setup http code & header above
-    res.end("<h1>Not found</h1>");
+    res.end('<h1>Not found</h1>');
   }
 });
 
 // port to start a server - localhost
-server.listen(8000, "127.0.0.1", () => {
-  console.log("Listening to requests on port 8000");
+server.listen(8000, '127.0.0.1', () => {
+  console.log('Listening to requests on port 8000');
 });
 
 /* Files */
