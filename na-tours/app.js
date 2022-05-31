@@ -24,6 +24,7 @@ const toursData = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
+/* Get */
 /* Keeping Api endpoints exactly the SAME as a good practice with related Route handler */
 app.get('/api/v1/tours', (req, res) => {
   res.status(200).json({
@@ -37,6 +38,32 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+/* Detail */
+// :id? is to make it optional
+app.get('/api/v1/tours/:id', (req, res) => {
+  // to access req.params object with param query variables
+  // console.log(req.params);
+
+  const id = Number(req.params.id);
+  const tour = toursData.find((i) => i.id === id);
+
+  // if (id > toursData.length) {
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: tour,
+    },
+  });
+});
+
+/* Post */
 app.post('/api/v1/tours', (req, res) => {
   // Express does not put Body data/object in the request by default
   // We have to use Middleware to have Request Body Object available
@@ -67,6 +94,39 @@ app.post('/api/v1/tours', (req, res) => {
 
   // Note - we always need to send back something to finish Request/Response Cycle
   // res.send('Done');
+});
+
+/* Patch */
+app.patch('/api/v1/tours/:id', (req, res) => {
+  if (req.params.id * 1 > toursData.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: '<Updated tour here...>',
+    },
+  });
+});
+
+/* Delete */
+app.delete('/api/v1/tours/:id', (req, res) => {
+  if (req.params.id * 1 > toursData.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  res.status(204).json({
+    status: 'success',
+    // data no longer exists
+    data: null,
+  });
 });
 
 const port = 4000;
