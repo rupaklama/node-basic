@@ -1,22 +1,32 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
+/* Middleware */
 /* express app instance */
 const app = express();
 
-// Middleware to consume Request Body Object
+// to debug, 'arg' is how we want the logging to look like in console
+app.use(morgan('dev'));
+
+// Middleware to consume Request Body Object - default body parser package
 app.use(express.json());
 
-/* routes */
-// app.get('/', (req, res) => {
-//   res
-//     .status(200)
-//     .json({ message: 'Hello from the server side!', app: 'Natours' });
-// });
+// note - we have access to Request/Response & Next function on any middleware
+// creating our own custom middleware which gets executed on each single request
+app.use((req, res, next) => {
+  console.log('Hello from the middleware!');
 
-// app.post('/', (req, res) => {
-//   res.send('You can post to this endpoint...');
-// });
+  // note - must call next() here otherwise req/res cycle will stuck or stop here
+  next();
+});
+
+// another custom middleware to manipulate Request
+app.use((req, res, next) => {
+  // adding current time to the request
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 /* File Reading should be done outside of Route handler */
 // __dirname - current root folder
@@ -24,11 +34,16 @@ const toursData = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
+/* Routes */
 /* Get */
 /* Keeping Api endpoints exactly the SAME as a good practice with related Route handler */
 app.get('/api/v1/tours', (req, res) => {
+  console.log(req.requestTime);
+
   res.status(200).json({
     status: 'success',
+    // our custom middleware is sending this data
+    requestedAt: req.requestTime,
     // sending additional data for client side
     results: toursData.length,
     data: {
