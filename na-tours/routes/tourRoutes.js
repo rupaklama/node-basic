@@ -14,6 +14,10 @@ const toursData = JSON.parse(
 router.param('id', (req, res, next, val) => {
   console.log(`Tour id is: ${val}`);
 
+  // NOTE - rather than creating simple function that checks id and calling it inside of
+  // each route handlers which is will go against philosophy of Express where we should
+  // always work with middleware stack pipeline like below as much as we can
+
   // check if id is valid
   if (req.params.id * 1 > toursData.length) {
     // note - 'return' statement is needed here to avoid
@@ -30,7 +34,21 @@ router.param('id', (req, res, next, val) => {
   next();
 });
 
-/* Routes */
+// validator middleware on request object to validate data
+const checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name or price',
+    });
+  }
+  next();
+};
+
+/* Routes - Only one purpose & No validation here, 
+the validation must be done inside of the middleware stack or pipeline in Express
+*/
+
 /* Get */
 /* Keeping Api endpoints exactly the SAME as a good practice with related Route handler */
 router.get('/', (req, res) => {
@@ -67,7 +85,8 @@ router.get('/:id', (req, res) => {
 });
 
 /* Post */
-router.post('/', (req, res) => {
+// note - chaining multiple middlewares for the same route
+router.post('/', checkBody, (req, res) => {
   // Express does not put Body data/object in the request by default
   // We have to use Middleware to have Request Body Object available
   // console.log(req.body); NOTE - the Request Body gets parsed into an Object

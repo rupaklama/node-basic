@@ -10,11 +10,17 @@ const userRouter = require('./routes/userRoutes');
 /* express app instance */
 const app = express();
 
-// to debug, 'arg' is how we want the logging to look like in console
-app.use(morgan('dev'));
+console.log(process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') {
+  // to debug, 'arg' is how we want the logging to look like in console
+  app.use(morgan('dev'));
+}
 
 // Middleware to consume Request Body Object - default body parser package
 app.use(express.json());
+
+// Middleware to server Static files from local directory
+app.use(express.static(`${__dirname}/public`));
 
 // note - we have access to Request/Response & Next function on any middleware
 // creating our own custom middleware which gets executed on each single request
