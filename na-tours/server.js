@@ -1,4 +1,5 @@
 /* Server related */
+const mongoose = require('mongoose');
 
 // to access Env variables
 const dotenv = require('dotenv');
@@ -9,6 +10,22 @@ const dotenv = require('dotenv');
 // object to specify the path to our config file
 // this will set env variables in Node process module
 dotenv.config({ path: './config.env' });
+
+// connect to database
+const db = process.env.DATABASE;
+
+mongoose
+  .connect(db, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    // connection object
+    // console.log(con.connections);
+    console.log('DB connection successful!');
+  });
 
 // env variables set by Node which comes from Process Core Modules
 // console.log(process.env);
